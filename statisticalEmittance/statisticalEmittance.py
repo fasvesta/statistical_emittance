@@ -31,7 +31,13 @@ class statisticalEmittance(object):
                 particles coordinates 
         Returns: void
         """   
-        self.coordinateMatrix=np.array([x,px,y,py,z,dp])
+        self.x=x
+        self.y=y
+        self.z=z
+        self.px=px
+        self.py=py
+        self.dp=dp
+        self.coordinateMatrix=np.array([self.x,self.px,self.y,self.py,self.z,self.dp])
         self.beamMatrix=np.matmul(self.coordinateMatrix,self.coordinateMatrix.T)/len(self.x)
         self.dispersionX=None
         self.coordinateMatrixBetatronic = None
