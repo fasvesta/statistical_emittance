@@ -42,13 +42,15 @@ class statisticalEmittance(object):
         self.dispersionX=None
         self.coordinateMatrixBetatronic = None
         self.emittanceX = None
+        self.betaX = None
+        self.betaY = None
 
     def correlation(self,par1,par2, betatronic=True):
         """
         Calculation of the correlation for the beam matrices
         Inputs: par1 : [0|1|2|3|4|5]
                 par2 : [0|1|2|3|4|5]
-                integers corresponding to coordinates (0->x),(1->px), (2->y), (3->py),(4->z), (5->dp)
+                integers corresponding to coordinates (0->x), (1->px), (2->y), (3->py), (4->z), (5->dp)
                 betatronic : [bool] if True the betatronic matrices are considered (default=True)
         Returns: <(a-<a>)*(b-<b>)> = <a*b> - <a>*<b>
         """
