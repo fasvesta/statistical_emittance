@@ -76,6 +76,8 @@ class statisticalEmittance(object):
         self.dispersionPx=self.correlation(1,5, betatronic=False)/self.corr5
         self.dispersionY=self.correlation(2,5, betatronic=False)/self.corr5
         self.dispersionPy=self.correlation(3,5, betatronic=False)/self.corr5
+        dispTable=np.array([[self.dispersionX],[self.dispersionPx],[self.dispersionY],[self.dispersionPy],[0],[0]])
+        self.dispersionTable=np.matmul(dispTable,dispTable.T)
 
     def betatronicMatrices(self):
         """
@@ -91,7 +93,7 @@ class statisticalEmittance(object):
         pyBetatronic=self.coordinateMatrix[3]-self.dispersionPy*self.coordinateMatrix[5]
 
         self.coordinateMatrixBetatronic=np.array([xBetatronic,pxBetatronic,yBetatronic,pyBetatronic])
-        self.beamMatrixBetatronic=np.matmul(self.coordinateMatrixBetatronic,self.coordinateMatrixBetatronic.T)/len(xBetatronic)
+        self.beamMatrixBetatronic=self.beamMatrix-self.dispersionTable*self.corr5
     
     def calculateEmittance(self):
         """
