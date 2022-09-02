@@ -44,6 +44,7 @@ class statisticalEmittance(object):
         self.emittanceX = None
         self.betaX = None
         self.betaY = None
+        self.fourDEmittance = None
 
     def correlation(self,par1,par2, betatronic=True):
         """
@@ -95,26 +96,28 @@ class statisticalEmittance(object):
         self.coordinateMatrixBetatronic=np.array([xBetatronic,pxBetatronic,yBetatronic,pyBetatronic])
         self.beamMatrixBetatronic=self.beamMatrix-self.dispersionTable*self.corr5
     
-    def calculateEmittance(self):
+    def calculateEmittance(self, fourD=False):
         """
         Transverse emittance evaluation 
         Returns: void
         """
-        self.xMatrix=np.array([[self.correlation(0,0, betatronic=True),self.correlation(0,1, betatronic=True)],[self.correlation(1,0, betatronic=True),self.correlation(1,1, betatronic=True)]])
-        self.emittanceX=np.sqrt(np.abs(np.linalg.det(self.xMatrix)))
-        self.yMatrix=np.array([[self.correlation(2,2, betatronic=True),self.correlation(2,3, betatronic=True)],[self.correlation(3,2, betatronic=True),self.correlation(3,3, betatronic=True)]])
-        self.emittanceY=np.sqrt(np.abs(np.linalg.det(self.yMatrix)))
-        xYMatrix=np.array([[self.correlation(0,2, betatronic=True),self.correlation(0,3, betatronic=True)],[self.correlation(1,2, betatronic=True),self.correlation(1,3, betatronic=True)]])
-        fullMatrix=np.append(np.append(self.xMatrix,xYMatrix,axis=1),np.append(xYMatrix.T,self.yMatrix,axis=1),axis=0)
-        self.fourDEmittance=np.sqrt(np.linalg.det(fullMatrix))
+        if self.emittanceX is None:
+            self.xMatrix=np.array([[self.correlation(0,0, betatronic=True),self.correlation(0,1, betatronic=True)],[self.correlation(1,0, betatronic=True),self.correlation(1,1, betatronic=True)]])
+            self.emittanceX=np.sqrt(np.abs(np.linalg.det(self.xMatrix)))
+            self.yMatrix=np.array([[self.correlation(2,2, betatronic=True),self.correlation(2,3, betatronic=True)],[self.correlation(3,2, betatronic=True),self.correlation(3,3, betatronic=True)]])
+            self.emittanceY=np.sqrt(np.abs(np.linalg.det(self.yMatrix)))
+        if fourD:
+            xYMatrix=np.array([[self.correlation(0,2, betatronic=True),self.correlation(0,3, betatronic=True)],[self.correlation(1,2, betatronic=True),self.correlation(1,3, betatronic=True)]])
+            fullMatrix=np.append(np.append(self.xMatrix,xYMatrix,axis=1),np.append(xYMatrix.T,self.yMatrix,axis=1),axis=0)
+            self.fourDEmittance=np.sqrt(np.linalg.det(fullMatrix))
 
     def calculateCouplingFactor(self):
         """
         Coupling evaluation as described in doi: 10.18429/JACoW-LINAC2018-THPO118
         Returns: void
         """
-        if self.emittanceX is None:
-            self.calculateEmittance()
+        if self.fourDEmittance is None:
+            self.calculateEmittance(fourD=True)
         self.coupling=self.emittanceX*self.emittanceY/self.fourDEmittance - 1.
 
     
@@ -152,11 +155,11 @@ class statisticalEmittance(object):
 
     def getFourDEmittance(self):
         """
-        Returns vertical emittance
+        Returns 4D emittance 
         Returns: [float]
         """
-        if self.emittanceX is None:
-           self.calculateEmittance()
+        if self.fourDEmittance is None:
+           self.calculateEmittance(fourD=True)
         return self.fourDEmittance
 
     def getNormalizedEmittanceX(self, beta, gamma):
@@ -247,7 +250,7 @@ class statisticalEmittance(object):
     
     def getDispersionX(self):
         """
-        Returns horizontal dispersion
+        Returns horizontal dispersion (for xsuite coordinates)
         Returns: [float]
         """
         if self.dispersionX is None:
@@ -256,7 +259,7 @@ class statisticalEmittance(object):
 
     def getDispersionPx(self):
         """
-        Returns horizontal dispersion prime
+        Returns horizontal dispersion prime (for xsuite coordinates)
         Returns: [float]
         """
         if self.dispersionX is None:
