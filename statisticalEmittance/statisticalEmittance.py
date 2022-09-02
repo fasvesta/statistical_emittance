@@ -60,9 +60,9 @@ class statisticalEmittance(object):
                     raise IOError('# statisticalEmittance::correlation: if betatronic par1 and par2 need to be [0|1|2|3]')
                 elif self.coordinateMatrixBetatronic is None:
                     self.betatronicMatrices()
-                return np.abs(self.beamMatrixBetatronic[par1,par2]-np.nanmean(self.coordinateMatrixBetatronic[par1])*np.nanmean(self.coordinateMatrixBetatronic[par2]))
+                return self.beamMatrixBetatronic[par1,par2]-np.nanmean(self.coordinateMatrixBetatronic[par1])*np.nanmean(self.coordinateMatrixBetatronic[par2])
             else:
-                return np.abs(self.beamMatrix[par1,par2]-np.nanmean(self.coordinateMatrix[par1])*np.nanmean(self.coordinateMatrix[par2]))
+                return self.beamMatrix[par1,par2]-np.nanmean(self.coordinateMatrix[par1])*np.nanmean(self.coordinateMatrix[par2])
         else:
             raise IOError('# statisticalEmittance::correlation: par1 and par2 need to be [0|1|2|3|4|5]')
 
@@ -244,3 +244,45 @@ class statisticalEmittance(object):
         if self.betaY is None:
            self.calculateTwissFunctions()
         return self.gammaY
+    
+    def getDispersionX(self):
+        """
+        Returns horizontal dispersion
+        Returns: [float]
+        """
+        if self.dispersionX is None:
+           self.calculateDispersion()
+        return self.dispersionX
+
+    def getDispersionPx(self):
+        """
+        Returns horizontal dispersion prime
+        Returns: [float]
+        """
+        if self.dispersionX is None:
+           self.calculateDispersion()
+        return self.dispersionPx
+    
+    def getDispersionY(self):
+        """
+        Returns vertical dispersion
+        Returns: [float]
+        """
+        if self.dispersionX is None:
+           self.calculateDispersion()
+        return self.dispersionY
+    
+    def getDispersionPy(self):
+        """
+        Returns vertical dispersion prime
+        Returns: [float]
+        """
+        if self.dispersionX is None:
+           self.calculateDispersion()
+        return self.dispersionPy
+
+    def getFullOptics(self):
+        self.opticsDir={'betx': self.getBetaX(), 'bety': self.getBetaY(), 'alfx': self.getAlfX() , 'alfy': self.getAlfY(),
+        'gammax': self.getGammaX() , 'gammay': self.getGammaY(),
+        'dispx': self.getDispersionX() , 'dispy': self.getDispersionY(),'dispxp': self.getDispersionPx() , 'dispyp': self.getDispersionPy()}
+        return self.opticsDir
