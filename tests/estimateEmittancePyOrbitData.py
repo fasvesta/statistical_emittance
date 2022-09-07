@@ -16,8 +16,6 @@ print('PSB optics: ', PSB_Optics)
 
 r=statisticalEmittance(x=data[:,0],px=data[:,1],y=data[:,2],py=data[:,3],z=data[:,4],dp=data[:,5]) 
 
-r.getFullOptics()
-
 print('NormalizedEmittanceX: ', r.getNormalizedEmittanceX(b,g) )
 print('NormalizedEmittanceY: ', r.getNormalizedEmittanceY(b,g) )
 print('Optics ',  r.getFullOptics())
@@ -29,7 +27,7 @@ print('pyorbit : NormalizedEmittanceX: 3.01536537217e-06')
 print('pyorbit : NormalizedEmittanceY: 2.86442324125e-06')
 
 r=statisticalEmittance(x=data['particles'][0][0]['x'].flatten(),px=data['particles'][0][0]['xp'].flatten(),y=data['particles'][0][0]['y'].flatten(),py=data['particles'][0][0]['yp'].flatten(),z=data['particles'][0][0]['z'].flatten(),dp=data['particles'][0][0]['dE'].flatten())
-r.getFullOptics()
+
 print('NormalizedEmittanceX: ', r.getNormalizedEmittanceX(b,g) )
 print('NormalizedEmittanceY: ', r.getNormalizedEmittanceY(b,g) )
 print('Optics',  r.getFullOptics())
@@ -41,7 +39,50 @@ r=statisticalEmittance(x=data['particles'][0][0]['x'].flatten(),px=data['particl
 print('pyorbit : NormalizedEmittanceX: 3.01436715678e-06')
 print('pyorbit : NormalizedEmittanceY: 2.51335244655e-06')
 
-r.getFullOptics()
 print('NormalizedEmittanceX: ', r.getNormalizedEmittanceX(b,g) )
 print('NormalizedEmittanceY: ', r.getNormalizedEmittanceY(b,g) )
 print('Optics',  r.getFullOptics())
+
+data=sio.loadmat('PSB/q4q3/mainbunch_009999.mat')
+
+r=statisticalEmittance(x=data['particles'][0][0]['x'].flatten(),px=data['particles'][0][0]['xp'].flatten(),y=data['particles'][0][0]['y'].flatten(),py=data['particles'][0][0]['yp'].flatten(),z=data['particles'][0][0]['z'].flatten(),dp=data['particles'][0][0]['dE'].flatten())
+
+data1=sio.loadmat('PSB/q4q3/output.mat')
+print('pyorbit : NormalizedEmittanceX: ', data1['epsn_x'][0][-1])
+print('pyorbit : NormalizedEmittanceY: ', data1['epsn_y'][0][-1])
+
+print('NormalizedEmittanceX: ', r.getNormalizedEmittanceX(b,g) )
+print('NormalizedEmittanceY: ', r.getNormalizedEmittanceY(b,g) )
+print('Optics',  r.getFullOptics())
+print('Coupling',  r.getCouplingFactor())
+
+data=sio.loadmat('PSB/q4q4/mainbunch_009999.mat')
+
+r=statisticalEmittance(x=data['particles'][0][0]['x'].flatten(),px=data['particles'][0][0]['xp'].flatten(),y=data['particles'][0][0]['y'].flatten(),py=data['particles'][0][0]['yp'].flatten(),z=data['particles'][0][0]['z'].flatten(),dp=data['particles'][0][0]['dE'].flatten())
+
+data1=sio.loadmat('PSB/q4q4/output.mat')
+print('pyorbit : NormalizedEmittanceX: ', data1['epsn_x'][0][-1])
+print('pyorbit : NormalizedEmittanceY: ', data1['epsn_y'][0][-1])
+
+print('NormalizedEmittanceX: ', r.getNormalizedEmittanceX(b,g) )
+print('NormalizedEmittanceY: ', r.getNormalizedEmittanceY(b,g) )
+print('Optics',  r.getFullOptics())
+print('Coupling',  r.getCouplingFactor())
+
+data=sio.loadmat('PS/mainbunch_499999.mat')
+b=0.91596101476611
+g=2.4921045962752
+p0=2.1417660241115 
+
+r=statisticalEmittance(x=data['particles'][0][0]['x'].flatten(),px=data['particles'][0][0]['xp'].flatten(),y=data['particles'][0][0]['y'].flatten(),py=data['particles'][0][0]['yp'].flatten(),z=data['particles'][0][0]['z'].flatten(),dp=data['particles'][0][0]['dE'].flatten())
+
+data1=sio.loadmat('PS/output_-1.mat')
+print('pyorbit : NormalizedEmittanceX: ', data1['epsn_x'][0][-1])
+print('pyorbit : NormalizedEmittanceY: ', data1['epsn_y'][0][-1])
+PS_Optics={'betx': 21.58, 'bety': 11.78, 'alfx': 4.53e-2, 'alfy': 0.1, 'dispx': 3.41}
+print('PS optics: ', PS_Optics)
+
+print('NormalizedEmittanceX: ', r.getNormalizedEmittanceX(b,g) )
+print('NormalizedEmittanceY: ', r.getNormalizedEmittanceY(b,g) )
+print('Optics',  r.getFullOptics())
+print('corrected dispersion: ', r.dispersionX*p0*b)
