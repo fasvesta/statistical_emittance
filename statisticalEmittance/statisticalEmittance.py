@@ -19,26 +19,29 @@ class statisticalEmittance(object):
     Returns: statisticalEmittance instance
     """
 
-    def __init__(self, x=None, px=None, y=None, py=None, z=None, dp=None):
+    def __init__(self, inputDistribution=None):
         """
         Initialization function
-        Input:  x:  [1D numpy array]
-                px: [1D numpy array]
-                y:  [1D numpy array]
-                py: [1D numpy array]
-                z:  [1D numpy array]
-                dp: [1D numpy array]
-                particles coordinates 
+        Input:  inputDistribution:  [xpart distribution object]
         Returns: void
         """   
-        self.x=x
-        self.y=y
-        self.z=z
-        self.px=px
-        self.py=py
-        self.dp=dp
-        self.coordinateMatrix=np.array([self.x,self.px,self.y,self.py,self.z,self.dp])
-        self.beamMatrix=np.matmul(self.coordinateMatrix,self.coordinateMatrix.T)/len(self.x)
+        # self.x=x
+        # self.y=y
+        # self.z=z
+        # self.px=px
+        # self.py=py
+        # self.dp=dp
+        if inputDistribution is None:
+            self.coordinateMatrix=None
+            self.beamMatrix=None
+            print("# statisticalEmittance : Provide distribution in [setInputDistribution]")
+            self.beta=None
+            self.gamma=None
+        else:
+            self.coordinateMatrix=np.array([inputDistribution.x,inputDistribution.px,inputDistribution.y,inputDistribution.py,inputDistribution.zeta,inputDistribution.delta])
+            self.beamMatrix=np.matmul(self.coordinateMatrix,self.coordinateMatrix.T)/len(inputDistribution.x)
+            self.beta=inputDistribution.beta0[0]
+            self.gamma=inputDistribution.gamma0[0]
         self.dispersionX=None
         self.coordinateMatrixBetatronic = None
         self.emittanceX = None
@@ -66,20 +69,7 @@ class statisticalEmittance(object):
                 return self.beamMatrix[par1,par2]-np.nanmean(self.coordinateMatrix[par1])*np.nanmean(self.coordinateMatrix[par2])
         else:
             raise IOError('# statisticalEmittance::correlation: par1 and par2 need to be [0|1|2|3|4|5]')
-
-    def calculateDispersion(self):
-        """
-        Statistical dispersion evaluation
-        Returns: void
-        """
-        self.corr5=self.correlation(5,5, betatronic=False)
-        self.dispersionX=self.correlation(0,5, betatronic=False)/self.corr5
-        self.dispersionPx=self.correlation(1,5, betatronic=False)/self.corr5
-        self.dispersionY=self.correlation(2,5, betatronic=False)/self.corr5
-        self.dispersionPy=self.correlation(3,5, betatronic=False)/self.corr5
-        dispTable=np.array([[self.dispersionX],[self.dispersionPx],[self.dispersionY],[self.dispersionPy],[0],[0]])
-        self.dispersionTable=np.matmul(dispTable,dispTable.T)
-
+    
     def betatronicMatrices(self):
         """
         Evaluation of the coordinates and beam matrix excluding dispersive components
@@ -95,6 +85,39 @@ class statisticalEmittance(object):
 
         self.coordinateMatrixBetatronic=np.array([xBetatronic,pxBetatronic,yBetatronic,pyBetatronic])
         self.beamMatrixBetatronic=self.beamMatrix-self.dispersionTable*self.corr5
+
+    def setInputDistribution(self,inputDistribution):
+        """
+        Provide distribution to calculate emittances and optics
+        Input:  inputDistribution:  [xpart distribution object]
+        Returns: void
+        """
+        if self.coordinateMatrix:
+            self.dispersionX=None
+            self.coordinateMatrixBetatronic = None
+            self.emittanceX = None
+            self.betaX = None
+            self.betaY = None
+            self.fourDEmittance = None
+        self.coordinateMatrix=np.array([inputDistribution.x,inputDistribution.px,inputDistribution.y,inputDistribution.py,inputDistribution.zeta,inputDistribution.delta])
+        self.beamMatrix=np.matmul(self.coordinateMatrix,self.coordinateMatrix.T)/len(inputDistribution.x)
+        self.beta=inputDistribution.beta0[0]
+        self.gamma=inputDistribution.gamma0[0]
+
+
+    def calculateDispersion(self):
+        """
+        Statistical dispersion evaluation
+        Returns: void
+        """
+        self.corr5=self.correlation(5,5, betatronic=False)
+        self.dispersionX=self.correlation(0,5, betatronic=False)/self.corr5
+        self.dispersionPx=self.correlation(1,5, betatronic=False)/self.corr5
+        self.dispersionY=self.correlation(2,5, betatronic=False)/self.corr5
+        self.dispersionPy=self.correlation(3,5, betatronic=False)/self.corr5
+        dispTable=np.array([[self.dispersionX],[self.dispersionPx],[self.dispersionY],[self.dispersionPy],[0],[0]])
+        self.dispersionTable=np.matmul(dispTable,dispTable.T)
+
     
     def calculateEmittance(self, fourD=False):
         """
@@ -162,27 +185,23 @@ class statisticalEmittance(object):
            self.calculateEmittance(fourD=True)
         return self.fourDEmittance
 
-    def getNormalizedEmittanceX(self, beta, gamma):
+    def getNormalizedEmittanceX(self):
         """
         Returns normalized horizontal emittance
-        Inputs: beta:   [float] bunch beta
-                gamma:  [float] bunch gamma
         Returns: [float]
         """
         if self.emittanceX is None:
            self.calculateEmittance()
-        return self.emittanceX*beta*gamma
+        return self.emittanceX*self.beta*self.gamma
 
-    def getNormalizedEmittanceY(self, beta, gamma):
+    def getNormalizedEmittanceY(self):
         """
         Returns normalized vertical emittance
-        Inputs: beta:   [float] bunch beta
-                gamma:  [float] bunch gamma
         Returns: [float]
         """
         if self.emittanceX is None:
            self.calculateEmittance()
-        return self.emittanceY*beta*gamma
+        return self.emittanceY*self.beta*self.gamma
 
     def getBetaX(self):
         """
@@ -283,7 +302,6 @@ class statisticalEmittance(object):
         if self.dispersionX is None:
            self.calculateDispersion()
         return self.dispersionPy
-
     def getFullOptics(self):
         self.opticsDir={'betx': self.getBetaX(), 'bety': self.getBetaY(), 'alfx': self.getAlfX() , 'alfy': self.getAlfY(),
         'gammax': self.getGammaX() , 'gammay': self.getGammaY(),
