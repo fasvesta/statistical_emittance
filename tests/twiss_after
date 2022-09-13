@@ -47,7 +47,7 @@
 @ TITLE            %03s "PSB"
 @ ORIGIN           %16s "5.08.00 Linux 64"
 @ DATE             %08s "07/09/22"
-@ TIME             %08s "06.15.18"
+@ TIME             %08s "09.09.48"
 * NAME                                S               BETX               BETY                 DX                DPX                 DY                DPY               ALFX               ALFY 
 $ %s                                %le                %le                %le                %le                %le                %le                %le                %le                %le 
  "PSB$START"           0.0000000000e+00   5.8851794894e+00   4.3242083178e+00  -2.8171080148e+00   6.7296620576e-05   0.0000000000e+00  -0.0000000000e+00   2.4073909503e-01   3.5811979638e-01
