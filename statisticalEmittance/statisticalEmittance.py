@@ -5,7 +5,7 @@
 #   A module to calculate the transverse emittances from the beam
 #   based on PyORBIT & desy-thesis-05-014
 #
-#   Version : 1.0
+#   Version : 1.0.1
 #   Author  : F. Asvesta
 #   Contact : fasvesta .at. cern .dot. ch
 """
@@ -19,35 +19,30 @@ class statisticalEmittance(object):
     Returns: statisticalEmittance instance
     """
 
-    def __init__(self, inputDistribution=None):
+    def __init__(self, inputDistribution):
         """
         Initialization function
         Input:  inputDistribution:  [xpart distribution object]
         Returns: void
         """   
-        # self.x=x
-        # self.y=y
-        # self.z=z
-        # self.px=px
-        # self.py=py
-        # self.dp=dp
-        if inputDistribution is None:
+        if inputDistribution:
+            self.coordinateMatrix=np.array([inputDistribution.x,inputDistribution.px,inputDistribution.y,inputDistribution.py,inputDistribution.zeta,inputDistribution.delta])
+            self.beamMatrix=np.matmul(self.coordinateMatrix,self.coordinateMatrix.T)/len(inputDistribution.x)
+            self.beta=inputDistribution.beta0[0]
+            self.gamma=inputDistribution.gamma0[0]
+        else:
             self.coordinateMatrix=None
             self.beamMatrix=None
             print("# statisticalEmittance : Provide distribution in [setInputDistribution]")
             self.beta=None
             self.gamma=None
-        else:
-            self.coordinateMatrix=np.array([inputDistribution.x,inputDistribution.px,inputDistribution.y,inputDistribution.py,inputDistribution.zeta,inputDistribution.delta])
-            self.beamMatrix=np.matmul(self.coordinateMatrix,self.coordinateMatrix.T)/len(inputDistribution.x)
-            self.beta=inputDistribution.beta0[0]
-            self.gamma=inputDistribution.gamma0[0]
         self.dispersionX=None
         self.coordinateMatrixBetatronic = None
         self.emittanceX = None
         self.betaX = None
         self.betaY = None
         self.fourDEmittance = None
+        self.coupling = None
 
     def correlation(self,par1,par2, betatronic=True):
         """
@@ -92,13 +87,14 @@ class statisticalEmittance(object):
         Input:  inputDistribution:  [xpart distribution object]
         Returns: void
         """
-        if self.coordinateMatrix:
+        if self.coordinateMatrix is not None:
             self.dispersionX=None
             self.coordinateMatrixBetatronic = None
             self.emittanceX = None
             self.betaX = None
             self.betaY = None
             self.fourDEmittance = None
+            self.coupling = None
         self.coordinateMatrix=np.array([inputDistribution.x,inputDistribution.px,inputDistribution.y,inputDistribution.py,inputDistribution.zeta,inputDistribution.delta])
         self.beamMatrix=np.matmul(self.coordinateMatrix,self.coordinateMatrix.T)/len(inputDistribution.x)
         self.beta=inputDistribution.beta0[0]
@@ -263,9 +259,9 @@ class statisticalEmittance(object):
         coupling factor is 0 for fully uncoupled beams.
         Returns: [float]
         """
-        if self.betaY is None:
-           self.calculateTwissFunctions()
-        return self.gammaY
+        if self.coupling is None:
+            self.calculateCouplingFactor()
+        return self.coupling
     
     def getDispersionX(self):
         """
@@ -273,7 +269,7 @@ class statisticalEmittance(object):
         Returns: [float]
         """
         if self.dispersionX is None:
-           self.calculateDispersion()
+            self.calculateDispersion()
         return self.dispersionX
 
     def getDispersionPx(self):
@@ -302,6 +298,7 @@ class statisticalEmittance(object):
         if self.dispersionX is None:
            self.calculateDispersion()
         return self.dispersionPy
+
     def getFullOptics(self):
         self.opticsDir={'betx': self.getBetaX(), 'bety': self.getBetaY(), 'alfx': self.getAlfX() , 'alfy': self.getAlfY(),
         'gammax': self.getGammaX() , 'gammay': self.getGammaY(),
