@@ -108,7 +108,7 @@ class statisticalEmittance(object):
             self.emittanceY=np.sqrt(np.abs(np.linalg.det(self.yMatrix)))
         if fourD:
             xYMatrix=np.array([[self.correlation(0,2, betatronic=True),self.correlation(0,3, betatronic=True)],[self.correlation(1,2, betatronic=True),self.correlation(1,3, betatronic=True)]])
-            fullMatrix=np.append(np.append(self.xMatrix,xYMatrix,axis=1),np.append(xYMatrix.T,self.yMatrix,axis=1),axis=0)
+            self.fullMatrix=np.append(np.append(self.xMatrix,xYMatrix,axis=1),np.append(xYMatrix.T,self.yMatrix,axis=1),axis=0)
             self.fourDEmittance=np.sqrt(np.linalg.det(fullMatrix))
 
     def calculateCouplingFactor(self):
