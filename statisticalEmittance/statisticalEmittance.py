@@ -45,6 +45,7 @@ class statisticalEmittance(object):
         self.betaX = None
         self.betaY = None
         self.fourDEmittance = None
+        self.coupling = None
 
     def correlation(self,par1,par2, betatronic=True):
         """
@@ -244,9 +245,9 @@ class statisticalEmittance(object):
         coupling factor is 0 for fully uncoupled beams.
         Returns: [float]
         """
-        if self.betaY is None:
-           self.calculateTwissFunctions()
-        return self.gammaY
+        if self.coupling is None:
+            self.calculateCouplingFactor()
+        return self.coupling
     
     def getDispersionX(self):
         """
