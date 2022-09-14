@@ -19,23 +19,21 @@ class statisticalEmittance(object):
     Returns: statisticalEmittance instance
     """
 
-    def __init__(self, inputDistribution):
+    def __init__(self, particles):
         """
         Initialization function
         Input:  inputDistribution:  [xpart distribution object]
         Returns: void
-        """   
-        if inputDistribution:
-            self.coordinateMatrix=np.array([inputDistribution.x,inputDistribution.px,inputDistribution.y,inputDistribution.py,inputDistribution.zeta,inputDistribution.delta])
-            self.beamMatrix=np.matmul(self.coordinateMatrix,self.coordinateMatrix.T)/len(inputDistribution.x)
-            self.beta=inputDistribution.beta0[0]
-            self.gamma=inputDistribution.gamma0[0]
+        """ 
+        self.coordinateMatrix=None  
+
+        if particles:
+            self.setParticles(particles)
         else:
-            self.coordinateMatrix=None
             self.beamMatrix=None
-            print("# statisticalEmittance : Provide distribution in [setInputDistribution]")
             self.beta=None
             self.gamma=None
+            print("# statisticalEmittance : Provide distribution in [setInputDistribution]")
         self.dispersionX=None
         self.coordinateMatrixBetatronic = None
         self.emittanceX = None
@@ -43,6 +41,27 @@ class statisticalEmittance(object):
         self.betaY = None
         self.fourDEmittance = None
         self.coupling = None
+
+    def setParticles(self,inputDistribution):
+        """
+        Provide distribution to calculate emittances and optics
+        Input:  inputDistribution:  [xpart distribution object]
+        Returns: void
+        """
+        if self.coordinateMatrix is not None:
+            self.dispersionX=None
+            self.coordinateMatrixBetatronic = None
+            self.emittanceX = None
+            self.betaX = None
+            self.betaY = None
+            self.fourDEmittance = None
+            self.coupling = None
+
+        mask_alive = particles.state>=1           
+        self.coordinateMatrix=np.array([particles.x[mask_alive],particles.px,particles.y,particles.py,particles.zeta,particles.delta])
+        self.beamMatrix=np.matmul(self.coordinateMatrix,self.coordinateMatrix.T)/len(particles.x)
+        self.beta=particles.beta0[0]
+        self.gamma=particles.gamma0[0]
 
     def correlation(self,par1,par2, betatronic=True):
         """
@@ -81,26 +100,6 @@ class statisticalEmittance(object):
         self.coordinateMatrixBetatronic=np.array([xBetatronic,pxBetatronic,yBetatronic,pyBetatronic])
         self.beamMatrixBetatronic=self.beamMatrix-self.dispersionTable*self.corr5
 
-    def setInputDistribution(self,inputDistribution):
-        """
-        Provide distribution to calculate emittances and optics
-        Input:  inputDistribution:  [xpart distribution object]
-        Returns: void
-        """
-        if self.coordinateMatrix is not None:
-            self.dispersionX=None
-            self.coordinateMatrixBetatronic = None
-            self.emittanceX = None
-            self.betaX = None
-            self.betaY = None
-            self.fourDEmittance = None
-            self.coupling = None
-        self.coordinateMatrix=np.array([inputDistribution.x,inputDistribution.px,inputDistribution.y,inputDistribution.py,inputDistribution.zeta,inputDistribution.delta])
-        self.beamMatrix=np.matmul(self.coordinateMatrix,self.coordinateMatrix.T)/len(inputDistribution.x)
-        self.beta=inputDistribution.beta0[0]
-        self.gamma=inputDistribution.gamma0[0]
-
-
     def calculateDispersion(self):
         """
         Statistical dispersion evaluation
@@ -113,7 +112,6 @@ class statisticalEmittance(object):
         self.dispersionPy=self.correlation(3,5, betatronic=False)/self.corr5
         dispTable=np.array([[self.dispersionX],[self.dispersionPx],[self.dispersionY],[self.dispersionPy],[0],[0]])
         self.dispersionTable=np.matmul(dispTable,dispTable.T)
-
     
     def calculateEmittance(self, fourD=False):
         """
@@ -138,7 +136,6 @@ class statisticalEmittance(object):
         if self.fourDEmittance is None:
             self.calculateEmittance(fourD=True)
         self.coupling=self.emittanceX*self.emittanceY/self.fourDEmittance - 1.
-
     
     def calculateTwissFunctions(self):
         """

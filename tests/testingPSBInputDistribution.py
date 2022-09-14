@@ -49,10 +49,10 @@ p_gaussian = xp.generate_matched_gaussian_bunch(num_particles=500000,
 r=statisticalEmittance(p_gaussian)
 statisticalOptics=r.getFullOptics()
 
-assert np.isclose(statisticalOptics['betx'],madOptics['betx'],atol=5e-2)
-assert np.isclose(statisticalOptics['betx'],trackerOptics['betx'],atol=5e-2)
+assert np.isclose(statisticalOptics['betx'],madOptics['betx'],atol=5e-2, rtol=0)
+assert np.isclose(statisticalOptics['betx'],trackerOptics['betx'],atol=5e-2, rtol=0)
 
-assert np.isclose(statisticalOptics['alfx'],madOptics['alfx'],atol=5e-3)
+assert np.isclose(statisticalOptics['alfx'],madOptics['alfx'],atol=5e-3, rtol=0)
 assert np.isclose(statisticalOptics['alfx'],trackerOptics['alfx'],atol=5e-3)
 
 assert np.isclose(statisticalOptics['gammax'],trackerOptics['gammax'],atol=5e-4)
