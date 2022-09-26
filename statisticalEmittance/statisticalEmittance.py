@@ -22,7 +22,7 @@ class StatisticalEmittance(object):
     def __init__(self, particles):
         """
         Initialization function
-        Input:  input_distribution:  [xpart distribution object]
+        Input: particles:  [xpart distribution object]
         Returns: void
         """ 
         self.coordinate_matrix=None  
@@ -38,14 +38,13 @@ class StatisticalEmittance(object):
         self.coordinate_matrix_betatronic = None
         self.emitt_x = None
         self.betx = None
-        self.bety = None
         self.emitt_4d = None
         self.coupling = None
 
-    def set_particles(self,input_distribution):
+    def set_particles(self,particles):
         """
         Provide distribution to calculate emittances and optics
-        Input:  input_distribution:  [xpart distribution object]
+        Input:  particles:  [xpart distribution object]
         Returns: void
         """
         if self.coordinate_matrix is not None:
@@ -53,7 +52,6 @@ class StatisticalEmittance(object):
             self.coordinate_matrix_betatronic = None
             self.emitt_x = None
             self.betx = None
-            self.bety = None
             self.emitt_4d = None
             self.coupling = None
 
@@ -150,6 +148,16 @@ class StatisticalEmittance(object):
         self.bety = self.y_matrix[0,0]/self.emitt_y
         self.alfaY = - self.y_matrix[0,1]/self.emitt_y
         self.gamy = self.y_matrix[1,1]/self.emitt_y
+    
+    def get_bunch_moments(self, particles, coupling = False):
+        self.set_particles(particles)
+        self.bunch_moments={'nemitt_x': self.get_nemitt_x(), 'nemitt_y': self.get_nemitt_y(), 'betx': self.get_betx(), 'bety': self.get_bety(), 'alfx': self.get_alfX() , 'alfy': self.get_alfY(),
+        'gamx': self.get_gamx() , 'gamy': self.get_gamy(),
+        'dx': self.get_dx() , 'dy': self.get_dy(),'dpx': self.get_dpx() , 'dpy': self.get_dpy()}
+        if coupling:
+            self.bunch_moments['coupling']=self.get_coupling_factor()
+            self.bunch_moments['emitt_4d']=self.get_emitt_4d()
+        return self.bunch_moments
 
     def get_emitt_x(self):
         """
@@ -210,7 +218,7 @@ class StatisticalEmittance(object):
         Returns beta function y
         Returns: [float]
         """
-        if self.bety is None:
+        if self.betx is None:
            self.calculate_twiss_functions()
         return self.bety
 
@@ -228,7 +236,7 @@ class StatisticalEmittance(object):
         Returns alfa function y
         Returns: [float]
         """
-        if self.bety is None:
+        if self.betx is None:
            self.calculate_twiss_functions()
         return self.alfaY
 
@@ -246,7 +254,7 @@ class StatisticalEmittance(object):
         Returns alfa function y
         Returns: [float]
         """
-        if self.bety is None:
+        if self.betx is None:
            self.calculate_twiss_functions()
         return self.gamy
 
