@@ -19,7 +19,7 @@ class StatisticalEmittance(object):
     Returns:StatisticalEmittance instance
     """
 
-    def __init__(self, particles):
+    def __init__(self, particles=None):
         """
         Initialization function
         Input: particles:  [xpart distribution object]

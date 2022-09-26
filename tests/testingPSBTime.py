@@ -25,18 +25,31 @@ p_gaussian = xp.generate_matched_gaussian_bunch(num_particles=500000,
 
 
 
-r=statisticalEmittance(p_gaussian)
+r=StatisticalEmittance(p_gaussian)
 t0=[]
+epsn_x = []
+epsn_y = []
 for k in range(3):
     start = time.time()
     for ii in range(10):
         print(ii)
         tracker.track(p_gaussian)
-        r.setInputDistribution(p_gaussian)
-        print('epsn_x = ',r.getNormalizedEmittanceX())
-        print('epsn_y = ',r.getNormalizedEmittanceY())
+        bunch_moments=r.get_bunch_moments(p_gaussian)
+        epsn_x.append(bunch_moments['nemitt_x'])
+        epsn_y.append(bunch_moments['nemitt_y'])
     end = time.time()
     t0.append([end - start])
+t1=[]
+for k in range(3):
+    start = time.time()
+    for ii in range(10):
+        print(ii)
+        tracker.track(p_gaussian)
+        bunch_moments=r.get_bunch_moments(p_gaussian, coupling=True)
+        epsn_x.append(bunch_moments['nemitt_x'])
+        epsn_y.append(bunch_moments['nemitt_y'])
+    end = time.time()
+    t1.append([end - start])
 t=[]
 for k in range(3):
     start = time.time()
@@ -47,5 +60,6 @@ for k in range(3):
     t.append([end - start])
 
 print('time tracking & estimating emittances (s)',t0)
+print('time tracking & estimating emittances & coupling factor (s)',t1)
 print('time tracking only (s)',t)
 print('tracking & estimating emittances - only tracking (s)', np.array(t0)-np.array(t))

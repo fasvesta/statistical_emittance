@@ -26,12 +26,12 @@ trackerOptics={'betx': tw['betx'][0],
  'bety': tw['bety'][0],
  'alfx': tw['alfx'][0],
  'alfy': tw['alfy'][0],
- 'gammax': tw['gamx'][0],
- 'gammay': tw['gamy'][0],
- 'dispx': tw['dx'][0],
- 'dispy': tw['dy'][0],
- 'dispxp': tw['dpx'][0],
- 'dispyp':tw['dpy'][0]}
+ 'gamx': tw['gamx'][0],
+ 'gamy': tw['gamy'][0],
+ 'dx': tw['dx'][0],
+ 'dy': tw['dy'][0],
+ 'dpx': tw['dpx'][0],
+ 'dpy':tw['dpy'][0]}
 
 particles = xp.generate_matched_gaussian_bunch(
          num_particles=n_part, total_intensity_particles=bunch_intensity,
@@ -40,56 +40,57 @@ particles = xp.generate_matched_gaussian_bunch(
          tracker=tracker)
 
 
-r=statisticalEmittance(particles)
-statisticalOptics=r.getFullOptics()
+r=StatisticalEmittance(particles)
+statisticalOptics=r.get_full_optics()
 
 assert np.isclose(statisticalOptics['betx'],trackerOptics['betx'],atol=5e-1)
 
 assert np.isclose(statisticalOptics['alfx'],trackerOptics['alfx'],atol=5e-3)
 
-assert np.isclose(statisticalOptics['gammax'],trackerOptics['gammax'],atol=5e-4)
+assert np.isclose(statisticalOptics['gamx'],trackerOptics['gamx'],atol=5e-4)
 
-assert np.isclose(statisticalOptics['dispx'],trackerOptics['dispx'],atol=5e-2)
+assert np.isclose(statisticalOptics['dx'],trackerOptics['dx'],atol=5e-2)
 
-assert np.isclose(statisticalOptics['dispxp'],trackerOptics['dispxp'],atol=5e-3)
+assert np.isclose(statisticalOptics['dpx'],trackerOptics['dpx'],atol=5e-3)
 
 assert np.isclose(statisticalOptics['bety'],trackerOptics['bety'],atol=5e-1)
 
 assert np.isclose(statisticalOptics['alfy'],trackerOptics['alfy'],atol=5e-3)
 
-assert np.isclose(statisticalOptics['gammay'],trackerOptics['gammay'],atol=5e-3)
+assert np.isclose(statisticalOptics['gamy'],trackerOptics['gamy'],atol=5e-3)
 
-assert np.isclose(statisticalOptics['dispy'],trackerOptics['dispy'],atol=5e-3)
+assert np.isclose(statisticalOptics['dy'],trackerOptics['dy'],atol=5e-3)
 
-assert np.isclose(statisticalOptics['dispyp'],trackerOptics['dispyp'],atol=5e-3)
+assert np.isclose(statisticalOptics['dpy'],trackerOptics['dpy'],atol=5e-3)
 
-assert np.isclose(r.getNormalizedEmittanceX(),nemitt_x,atol=5e-8)
-assert np.isclose(r.getNormalizedEmittanceY(),nemitt_y,atol=5e-9)
+assert np.isclose(r.get_nemitt_x(),nemitt_x,atol=5e-8)
+assert np.isclose(r.get_nemitt_y(),nemitt_y,atol=5e-9)
 
 
 for ii in range(3):
     print(ii)
     tracker.track(particles)
-    r.setInputDistribution(particles)
-    statisticalOptics=r.getFullOptics()
+    r.set_particles(particles)
+    statisticalOptics=r.get_full_optics()
     assert np.isclose(statisticalOptics['betx'],trackerOptics['betx'],atol=5e-1)
 
-    assert np.isclose(statisticalOptics['alfx'],trackerOptics['alfx'],atol=5e-3)
+    assert np.isclose(statisticalOptics['alfx'],trackerOptics['alfx'],atol=5e-2)
 
-    assert np.isclose(statisticalOptics['gammax'],trackerOptics['gammax'],atol=5e-4)
+    assert np.isclose(statisticalOptics['gamx'],trackerOptics['gamx'],atol=5e-4)
 
-    assert np.isclose(statisticalOptics['dispx'],trackerOptics['dispx'],atol=5e-2)
+    assert np.isclose(statisticalOptics['dx'],trackerOptics['dx'],atol=5e-2)
 
-    assert np.isclose(statisticalOptics['dispxp'],trackerOptics['dispxp'],atol=5e-3)
+    assert np.isclose(statisticalOptics['dpx'],trackerOptics['dpx'],atol=5e-3)
 
     assert np.isclose(statisticalOptics['bety'],trackerOptics['bety'],atol=5e-1)
 
+    assert np.isclose(statisticalOptics['alfy'],trackerOptics['alfy'],atol=5e-2)
 
-    assert np.isclose(statisticalOptics['gammay'],trackerOptics['gammay'],atol=5e-3)
+    assert np.isclose(statisticalOptics['gamy'],trackerOptics['gamy'],atol=5e-3)
 
-    assert np.isclose(statisticalOptics['dispy'],trackerOptics['dispy'],atol=5e-3)
+    assert np.isclose(statisticalOptics['dy'],trackerOptics['dy'],atol=5e-3)
 
-    assert np.isclose(statisticalOptics['dispyp'],trackerOptics['dispyp'],atol=5e-3)
+    assert np.isclose(statisticalOptics['dpy'],trackerOptics['dpy'],atol=5e-3)
 
-    assert np.isclose(r.getNormalizedEmittanceX(),nemitt_x,atol=5e-8)
-    assert np.isclose(r.getNormalizedEmittanceY(),nemitt_y,atol=5e-9)
+    assert np.isclose(r.get_nemitt_x(),nemitt_x,atol=5e-8)
+    assert np.isclose(r.get_nemitt_y(),nemitt_y,atol=5e-9)
