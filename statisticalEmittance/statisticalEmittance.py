@@ -143,169 +143,24 @@ class StatisticalEmittance(object):
         if self.emitt_x is None:
             self.calculate_emittance()
         self.betx = self.x_matrix[0,0]/self.emitt_x
-        self.alfaX = - self.x_matrix[0,1]/self.emitt_x
+        self.alfx = - self.x_matrix[0,1]/self.emitt_x
         self.gamx = self.x_matrix[1,1]/self.emitt_x
         self.bety = self.y_matrix[0,0]/self.emitt_y
-        self.alfaY = - self.y_matrix[0,1]/self.emitt_y
+        self.alfy = - self.y_matrix[0,1]/self.emitt_y
         self.gamy = self.y_matrix[1,1]/self.emitt_y
     
     def get_bunch_moments(self, particles, coupling = False):
         self.set_particles(particles)
-        self.bunch_moments={'nemitt_x': self.get_nemitt_x(), 'nemitt_y': self.get_nemitt_y(), 'betx': self.get_betx(), 'bety': self.get_bety(), 'alfx': self.get_alfX() , 'alfy': self.get_alfY(),
-        'gamx': self.get_gamx() , 'gamy': self.get_gamy(),
-        'dx': self.get_dx() , 'dy': self.get_dy(),'dpx': self.get_dpx() , 'dpy': self.get_dpy()}
         if coupling:
-            self.bunch_moments['coupling']=self.get_coupling_factor()
-            self.bunch_moments['emitt_4d']=self.get_emitt_4d()
-        return self.bunch_moments
-
-    def get_emitt_x(self):
-        """
-        Returns horizontal emittance
-        Returns: [float]
-        """
-        if self.emitt_x is None:
-           self.calculate_emittance()
-        return self.emitt_x
-
-    def get_emitt_y(self):
-        """
-        Returns vertical emittance
-        Returns: [float]
-        """
-        if self.emitt_x is None:
-           self.calculate_emittance()
-        return self.emitt_y
-
-    def get_emitt_4d(self):
-        """
-        Returns 4D emittance 
-        Returns: [float]
-        """
-        if self.emitt_4d is None:
-           self.calculate_emittance(fourD=True)
-        return self.emitt_4d
-
-    def get_nemitt_x(self):
-        """
-        Returns normalized horizontal emittance
-        Returns: [float]
-        """
-        if self.emitt_x is None:
-           self.calculate_emittance()
-        return self.emitt_x*self.beta0*self.gamma0
-
-    def get_nemitt_y(self):
-        """
-        Returns normalized vertical emittance
-        Returns: [float]
-        """
-        if self.emitt_x is None:
-           self.calculate_emittance()
-        return self.emitt_y*self.beta0*self.gamma0
-
-    def get_betx(self):
-        """
-        Returns beta function x
-        Returns: [float]
-        """
-        if self.betx is None:
-           self.calculate_twiss_functions()
-        return self.betx
-
-    def get_bety(self):
-        """
-        Returns beta function y
-        Returns: [float]
-        """
-        if self.betx is None:
-           self.calculate_twiss_functions()
-        return self.bety
-
-    def get_alfX(self):
-        """
-        Returns alfa function x
-        Returns: [float]
-        """
-        if self.betx is None:
-           self.calculate_twiss_functions()
-        return self.alfaX
-
-    def get_alfY(self):
-        """
-        Returns alfa function y
-        Returns: [float]
-        """
-        if self.betx is None:
-           self.calculate_twiss_functions()
-        return self.alfaY
-
-    def get_gamx(self):
-        """
-        Returns alfa function x
-        Returns: [float]
-        """
-        if self.betx is None:
-           self.calculate_twiss_functions()
-        return self.gamx
-
-    def get_gamy(self):
-        """
-        Returns alfa function y
-        Returns: [float]
-        """
-        if self.betx is None:
-           self.calculate_twiss_functions()
-        return self.gamy
-
-    def get_coupling_factor(self):
-        """
-        Returns the coupling factor as in doi: 10.18429/JACoW-LINAC2018-THPO118
-        coupling factor is 0 for fully uncoupled beams.
-        Returns: [float]
-        """
-        if self.coupling is None:
+            self.calculate_emittance(fourD=True)
             self.calculate_coupling_factor()
-        return self.coupling
-    
-    def get_dx(self):
-        """
-        Returns horizontal dispersion (for xsuite coordinates)
-        Returns: [float]
-        """
-        if self.dx is None:
-            self.calculate_dispersion()
-        return self.dx
-
-    def get_dpx(self):
-        """
-        Returns horizontal dispersion prime (for xsuite coordinates)
-        Returns: [float]
-        """
-        if self.dx is None:
-           self.calculate_dispersion()
-        return self.dpx
-    
-    def get_dy(self):
-        """
-        Returns vertical dispersion
-        Returns: [float]
-        """
-        if self.dx is None:
-           self.calculate_dispersion()
-        return self.dy
-    
-    def get_dpy(self):
-        """
-        Returns vertical dispersion prime
-        Returns: [float]
-        """
-        if self.dx is None:
-           self.calculate_dispersion()
-        return self.dpy
-
-    def get_full_optics(self):
-        self.optics_dict={'betx': self.get_betx(), 'bety': self.get_bety(), 'alfx': self.get_alfX() , 'alfy': self.get_alfY(),
-        'gamx': self.get_gamx() , 'gamy': self.get_gamy(),
-        'dx': self.get_dx() , 'dy': self.get_dy(),'dpx': self.get_dpx() , 'dpy': self.get_dpy()}
-        return self.optics_dict
+        else:
+            self.calculate_emittance()
+        self.calculate_twiss_functions()
+        self.bunch_moments={'nemitt_x': self.emitt_x*self.beta0*self.gamma0, 'nemitt_y': self.emitt_y*self.beta0*self.gamma0, 'betx': self.betx, 'bety': self.bety, 'alfx': self.alfx , 'alfy': self.alfy,
+        'gamx': self.gamx , 'gamy': self.gamy,
+        'dx': self.dx, 'dy': self.dy,'dpx': self.dpx , 'dpy': self.dpy}
+        if coupling:
+            self.bunch_moments['coupling']=self.coupling
+            self.bunch_moments['emitt_4d']=self.emitt_4d
+        return self.bunch_moments

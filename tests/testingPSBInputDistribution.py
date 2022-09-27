@@ -47,7 +47,7 @@ p_gaussian = xp.generate_matched_gaussian_bunch(num_particles=500000,
 
 
 r=StatisticalEmittance(p_gaussian)
-statisticalOptics=r.get_full_optics()
+statisticalOptics=r.get_bunch_moments(p_gaussian)
 
 assert np.isclose(statisticalOptics['betx'],madOptics['betx'],atol=5e-2, rtol=0)
 assert np.isclose(statisticalOptics['betx'],trackerOptics['betx'],atol=5e-2, rtol=0)
@@ -77,15 +77,14 @@ assert np.isclose(statisticalOptics['dy'],trackerOptics['dy'],atol=5e-3)
 assert np.isclose(statisticalOptics['dpy'],madOptics['dpy']*p_gaussian.beta0[0],atol=5e-3)
 assert np.isclose(statisticalOptics['dpy'],trackerOptics['dpy'],atol=5e-3)
 
-assert np.isclose(r.get_nemitt_x(),nemitt_x,atol=5e-8)
-assert np.isclose(r.get_nemitt_y(),nemitt_y,atol=5e-9)
+assert np.isclose(statisticalOptics['nemitt_x'],nemitt_x,atol=5e-8)
+assert np.isclose(statisticalOptics['nemitt_y'],nemitt_y,atol=5e-9)
 
 
 for ii in range(3):
     print(ii)
     tracker.track(p_gaussian)
-    r.set_particles(p_gaussian)
-    statisticalOptics=r.get_full_optics()
+    statisticalOptics=r.get_bunch_moments(p_gaussian)
     assert np.isclose(statisticalOptics['betx'],madOptics['betx'],atol=5e-2)
     assert np.isclose(statisticalOptics['betx'],trackerOptics['betx'],atol=5e-2)
 
@@ -114,5 +113,5 @@ for ii in range(3):
     assert np.isclose(statisticalOptics['dpy'],madOptics['dpy']*p_gaussian.beta0[0],atol=5e-3)
     assert np.isclose(statisticalOptics['dpy'],trackerOptics['dpy'],atol=5e-3)
 
-    assert np.isclose(r.get_nemitt_x(),nemitt_x,atol=5e-8)
-    assert np.isclose(r.get_nemitt_y(),nemitt_y,atol=5e-9)
+    assert np.isclose(statisticalOptics['nemitt_x'],nemitt_x,atol=5e-8)
+    assert np.isclose(statisticalOptics['nemitt_y'],nemitt_y,atol=5e-9)
