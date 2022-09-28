@@ -143,17 +143,20 @@ class StatisticalEmittance(object):
         if self.emitt_x is None:
             self.calculate_emittance()
         self.betx = self.x_matrix[0,0]/self.emitt_x
-        self.alfaX = - self.x_matrix[0,1]/self.emitt_x
+        self.alfx = - self.x_matrix[0,1]/self.emitt_x
         self.gamx = self.x_matrix[1,1]/self.emitt_x
         self.bety = self.y_matrix[0,0]/self.emitt_y
-        self.alfaY = - self.y_matrix[0,1]/self.emitt_y
+        self.alfy = - self.y_matrix[0,1]/self.emitt_y
         self.gamy = self.y_matrix[1,1]/self.emitt_y
     
     def get_bunch_moments(self, particles, coupling = False):
         self.set_particles(particles)
-        self.bunch_moments={'nemitt_x': self.get_nemitt_x(), 'nemitt_y': self.get_nemitt_y(), 'betx': self.get_betx(), 'bety': self.get_bety(), 'alfx': self.get_alfX() , 'alfy': self.get_alfY(),
+        self.bunch_moments={'nemitt_x': self.get_nemitt_x(), 'nemitt_y': self.get_nemitt_y(), 
+        'betx': self.get_betx(), 'bety': self.get_bety(), 
+        'alfx': self.get_alfx() , 'alfy': self.get_alfy(),
         'gamx': self.get_gamx() , 'gamy': self.get_gamy(),
-        'dx': self.get_dx() , 'dy': self.get_dy(),'dpx': self.get_dpx() , 'dpy': self.get_dpy()}
+        'dx': self.get_dx() , 'dy': self.get_dy(),
+        'dpx': self.get_dpx() , 'dpy': self.get_dpy()}
         if coupling:
             self.bunch_moments['coupling']=self.get_coupling_factor()
             self.bunch_moments['emitt_4d']=self.get_emitt_4d()
@@ -222,23 +225,23 @@ class StatisticalEmittance(object):
            self.calculate_twiss_functions()
         return self.bety
 
-    def get_alfX(self):
+    def get_alfx(self):
         """
         Returns alfa function x
         Returns: [float]
         """
         if self.betx is None:
            self.calculate_twiss_functions()
-        return self.alfaX
+        return self.alfx
 
-    def get_alfY(self):
+    def get_alfy(self):
         """
         Returns alfa function y
         Returns: [float]
         """
         if self.betx is None:
            self.calculate_twiss_functions()
-        return self.alfaY
+        return self.alfy
 
     def get_gamx(self):
         """
@@ -305,7 +308,9 @@ class StatisticalEmittance(object):
         return self.dpy
 
     def get_full_optics(self):
-        self.optics_dict={'betx': self.get_betx(), 'bety': self.get_bety(), 'alfx': self.get_alfX() , 'alfy': self.get_alfY(),
+        self.optics_dict={'betx': self.get_betx(), 'bety': self.get_bety(), 
+        'alfx': self.get_alfx() , 'alfy': self.get_alfy(),
         'gamx': self.get_gamx() , 'gamy': self.get_gamy(),
-        'dx': self.get_dx() , 'dy': self.get_dy(),'dpx': self.get_dpx() , 'dpy': self.get_dpy()}
+        'dx': self.get_dx() , 'dy': self.get_dy(),
+        'dpx': self.get_dpx() , 'dpy': self.get_dpy()}
         return self.optics_dict
