@@ -157,9 +157,12 @@ class StatisticalEmittance(object):
         else:
             self.calculate_emittance()
         self.calculate_twiss_functions()
-        self.bunch_moments={'nemitt_x': self.emitt_x*self.beta0*self.gamma0, 'nemitt_y': self.emitt_y*self.beta0*self.gamma0, 'betx': self.betx, 'bety': self.bety, 'alfx': self.alfx , 'alfy': self.alfy,
-        'gamx': self.gamx , 'gamy': self.gamy,
-        'dx': self.dx, 'dy': self.dy,'dpx': self.dpx , 'dpy': self.dpy}
+        self.bunch_moments={'nemitt_x': self.emitt_x*self.beta0*self.gamma0, 'nemitt_y': self.emitt_y*self.beta0*self.gamma0, 
+                            'betx': self.betx, 'bety': self.bety, 
+                            'alfx': self.alfx , 'alfy': self.alfy,
+                            'gamx': self.gamx , 'gamy': self.gamy,
+                            'dx': self.dx, 'dy': self.dy,
+                            'dpx': self.dpx , 'dpy': self.dpy}
         if coupling:
             self.bunch_moments['coupling']=self.coupling
             self.bunch_moments['emitt_4d']=self.emitt_4d
