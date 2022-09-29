@@ -56,8 +56,8 @@ class StatisticalEmittance(object):
             self.coupling = None
 
         mask_alive = particles.state>=1           
-        self.coordinate_matrix=np.array([particles.x[mask_alive],particles.px,particles.y,particles.py,particles.zeta,particles.delta])
-        self.beam_matrix=np.matmul(self.coordinate_matrix,self.coordinate_matrix.T)/len(particles.x)
+        self.coordinate_matrix=np.array([particles.x[mask_alive],particles.px[mask_alive],particles.y[mask_alive],particles.py[mask_alive],particles.zeta[mask_alive],particles.delta[mask_alive]])
+        self.beam_matrix=np.matmul(self.coordinate_matrix,self.coordinate_matrix.T)/len(particles.x[mask_alive])
         self.beta0=particles.beta0[0]
         self.gamma0=particles.gamma0[0]
 
@@ -149,7 +149,7 @@ class StatisticalEmittance(object):
         self.alfy = - self.y_matrix[0,1]/self.emitt_y
         self.gamy = self.y_matrix[1,1]/self.emitt_y
     
-    def get_bunch_moments(self, particles, coupling = False):
+    def measure_bunch_moments(self, particles, coupling = False):
         self.set_particles(particles)
         if coupling:
             self.calculate_emittance(fourD=True)

@@ -41,7 +41,7 @@ particles = xp.generate_matched_gaussian_bunch(
 
 
 r=StatisticalEmittance()
-statisticalOptics=r.get_bunch_moments(particles)
+statisticalOptics=r.measure_bunch_moments(particles)
 
 assert np.isclose(statisticalOptics['betx'],trackerOptics['betx'],atol=5e-1)
 
@@ -70,7 +70,7 @@ assert np.isclose(statisticalOptics['nemitt_y'],nemitt_y,atol=5e-9)
 for ii in range(3):
     print(ii)
     tracker.track(particles)
-    statisticalOptics=r.get_bunch_moments(particles)
+    statisticalOptics=r.measure_bunch_moments(particles)
     assert np.isclose(statisticalOptics['betx'],trackerOptics['betx'],atol=5e-1)
 
     assert np.isclose(statisticalOptics['alfx'],trackerOptics['alfx'],atol=5e-2)

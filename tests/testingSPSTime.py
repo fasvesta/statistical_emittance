@@ -29,7 +29,7 @@ particles = xp.generate_matched_gaussian_bunch(
          tracker=tracker)
 
 
-r=StatisticalEmittance(particles)
+r=StatisticalEmittance()
 t0=[]
 epsn_x = []
 epsn_y = []
@@ -38,7 +38,7 @@ for k in range(3):
     for ii in range(10):
         print(ii)
         tracker.track(particles)
-        bunch_moments=r.get_bunch_moments(particles)
+        bunch_moments=r.measure_bunch_moments(particles)
         epsn_x.append(bunch_moments['nemitt_x'])
         epsn_y.append(bunch_moments['nemitt_y'])
     end = time.time()
