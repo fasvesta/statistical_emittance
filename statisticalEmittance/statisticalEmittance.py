@@ -54,9 +54,12 @@ class StatisticalEmittance(object):
             self.betx = None
             self.emitt_4d = None
             self.coupling = None
-
+        context = particles._context
+        ctx2np = context.nparray_from_context_array
         mask_alive = particles.state>=1           
-        self.coordinate_matrix=np.array([particles.x[mask_alive],particles.px[mask_alive],particles.y[mask_alive],particles.py[mask_alive],particles.zeta[mask_alive],particles.delta[mask_alive]])
+        self.coordinate_matrix =np.array([ctx2np(particles.x[mask_alive]),ctx2np(particles.px[mask_alive]),
+        ctx2np(particles.y[mask_alive]),ctx2np(particles.py[mask_alive]),
+        ctx2np(particles.zeta[mask_alive]),ctx2np(particles.delta[mask_alive])])
         self.beam_matrix=np.matmul(self.coordinate_matrix,self.coordinate_matrix.T)/len(particles.x[mask_alive])
         self.beta0=particles.beta0[0]
         self.gamma0=particles.gamma0[0]
