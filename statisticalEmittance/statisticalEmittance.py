@@ -11,22 +11,33 @@
 """
 # - - * - - * - - * - - * - - * - - * - - * - - * - - * - - * - - * - - * - - * - - *
 
-import numpy as np
-
 class StatisticalEmittance(object):
     """
     class for the statistical emittance estimation
     Returns:StatisticalEmittance instance
     """
 
-    def __init__(self, particles=None):
+    def __init__(self, particles=None, context='CPU'):
         """
         Initialization function
         Input: particles:  [xpart distribution object]
+               context:    ['CPU'|'GPU']               Context to use for the calculations (default = 'CPU')
         Returns: void
         """ 
         self.coordinate_matrix=None  
-
+        self.context = context
+        if self.context=='GPU':
+            try:
+                import cupy as cp
+            except ImportError:
+                print("# StatisticalEmittance : cupy module is required to run in GPU. ")
+            self.np=cp
+        else:
+            try:
+                import numpy as np
+            except ImportError:
+                print("# StatisticalEmittance : numpy module is required to run in CPU. ")
+            self.np=np
         if particles:
             self.set_particles(particles)
         else:
@@ -56,11 +67,16 @@ class StatisticalEmittance(object):
             self.coupling = None
         context = particles._context
         ctx2np = context.nparray_from_context_array
-        mask_alive = particles.state>=1           
-        self.coordinate_matrix =np.array([ctx2np(particles.x[mask_alive]),ctx2np(particles.px[mask_alive]),
-        ctx2np(particles.y[mask_alive]),ctx2np(particles.py[mask_alive]),
-        ctx2np(particles.zeta[mask_alive]),ctx2np(particles.delta[mask_alive])])
-        self.beam_matrix=np.matmul(self.coordinate_matrix,self.coordinate_matrix.T)/len(particles.x[mask_alive])
+        mask_alive = particles.state>=1
+        if self.context=='CPU':
+            self.coordinate_matrix = self.np.array([ctx2np(particles.x[mask_alive]),ctx2np(particles.px[mask_alive]),
+                                    ctx2np(particles.y[mask_alive]),ctx2np(particles.py[mask_alive]),
+                                    ctx2np(particles.zeta[mask_alive]),ctx2np(particles.delta[mask_alive])]) 
+        else:
+            self.coordinate_matrix = self.np.array([particles.x[mask_alive],particles.px[mask_alive],
+                                    particles.y[mask_alive],particles.py[mask_alive],
+                                    particles.zeta[mask_alive],particles.delta[mask_alive]])            
+        self.beam_matrix=self.np.matmul(self.coordinate_matrix,self.coordinate_matrix.T)/len(particles.x[mask_alive]) 
         self.beta0=particles.beta0[0]
         self.gamma0=particles.gamma0[0]
 
@@ -79,9 +95,9 @@ class StatisticalEmittance(object):
                     raise IOError('#StatisticalEmittance::correlation: if betatronic par1 and par2 need to be [0|1|2|3]')
                 elif self.coordinate_matrix_betatronic is None:
                     self.betatronic_matrices()
-                return self.beam_matrix_betatronic[par1,par2]-np.nanmean(self.coordinate_matrix_betatronic[par1])*np.nanmean(self.coordinate_matrix_betatronic[par2])
+                return self.beam_matrix_betatronic[par1,par2]-self.np.nanmean(self.coordinate_matrix_betatronic[par1])*self.np.nanmean(self.coordinate_matrix_betatronic[par2])
             else:
-                return self.beam_matrix[par1,par2]-np.nanmean(self.coordinate_matrix[par1])*np.nanmean(self.coordinate_matrix[par2])
+                return self.beam_matrix[par1,par2]-self.np.nanmean(self.coordinate_matrix[par1])*self.np.nanmean(self.coordinate_matrix[par2])
         else:
             raise IOError('#StatisticalEmittance::correlation: par1 and par2 need to be [0|1|2|3|4|5]')
     
@@ -97,8 +113,7 @@ class StatisticalEmittance(object):
         px_betatronic=self.coordinate_matrix[1]-self.dpx*self.coordinate_matrix[5]
         y_betatronic=self.coordinate_matrix[2]-self.dy*self.coordinate_matrix[5]
         py_betatronic=self.coordinate_matrix[3]-self.dpy*self.coordinate_matrix[5]
-
-        self.coordinate_matrix_betatronic=np.array([x_betatronic,px_betatronic,y_betatronic,py_betatronic])
+        self.coordinate_matrix_betatronic=self.np.array([x_betatronic,px_betatronic,y_betatronic,py_betatronic])
         self.beam_matrix_betatronic=self.beam_matrix-self.dispersion_table*self.corr5
 
     def calculate_dispersion(self):
@@ -111,8 +126,8 @@ class StatisticalEmittance(object):
         self.dpx=self.correlation(1,5, betatronic=False)/self.corr5
         self.dy=self.correlation(2,5, betatronic=False)/self.corr5
         self.dpy=self.correlation(3,5, betatronic=False)/self.corr5
-        disp_table=np.array([[self.dx],[self.dpx],[self.dy],[self.dpy],[0],[0]])
-        self.dispersion_table=np.matmul(disp_table,disp_table.T)
+        disp_table=self.np.array([[self.dx.tolist()],[self.dpx.tolist()],[self.dy.tolist()],[self.dpy.tolist()],[0],[0]])
+        self.dispersion_table=self.np.matmul(disp_table,disp_table.T)  
     
     def calculate_emittance(self, fourD=False):
         """
@@ -120,14 +135,14 @@ class StatisticalEmittance(object):
         Returns: void
         """
         if self.emitt_x is None:
-            self.x_matrix=np.array([[self.correlation(0,0, betatronic=True),self.correlation(0,1, betatronic=True)],[self.correlation(1,0, betatronic=True),self.correlation(1,1, betatronic=True)]])
-            self.emitt_x=np.sqrt(np.abs(np.linalg.det(self.x_matrix)))
-            self.y_matrix=np.array([[self.correlation(2,2, betatronic=True),self.correlation(2,3, betatronic=True)],[self.correlation(3,2, betatronic=True),self.correlation(3,3, betatronic=True)]])
-            self.emitt_y=np.sqrt(np.abs(np.linalg.det(self.y_matrix)))
+            self.x_matrix=self.np.array([[self.correlation(0,0, betatronic=True),self.correlation(0,1, betatronic=True)],[self.correlation(1,0, betatronic=True),self.correlation(1,1, betatronic=True)]])
+            self.emitt_x=self.np.sqrt(abs(self.np.linalg.det(self.x_matrix)))
+            self.y_matrix=self.np.array([[self.correlation(2,2, betatronic=True),self.correlation(2,3, betatronic=True)],[self.correlation(3,2, betatronic=True),self.correlation(3,3, betatronic=True)]])
+            self.emitt_y=self.np.sqrt(abs(self.np.linalg.det(self.y_matrix)))
         if fourD:
-            x_y_matrix=np.array([[self.correlation(0,2, betatronic=True),self.correlation(0,3, betatronic=True)],[self.correlation(1,2, betatronic=True),self.correlation(1,3, betatronic=True)]])
-            full_matrix=np.append(np.append(self.x_matrix,x_y_matrix,axis=1),np.append(x_y_matrix.T,self.y_matrix,axis=1),axis=0)
-            self.emitt_4d=np.sqrt(np.linalg.det(full_matrix))
+            x_y_matrix=self.np.array([[self.correlation(0,2, betatronic=True),self.correlation(0,3, betatronic=True)],[self.correlation(1,2, betatronic=True),self.correlation(1,3, betatronic=True)]])
+            full_matrix=self.np.append(self.np.append(self.x_matrix,x_y_matrix,axis=1),self.np.append(x_y_matrix.T,self.y_matrix,axis=1),axis=0)
+            self.emitt_4d=self.np.sqrt(self.np.linalg.det(full_matrix))
 
     def calculate_coupling_factor(self):
         """
@@ -151,7 +166,7 @@ class StatisticalEmittance(object):
         self.bety = self.y_matrix[0,0]/self.emitt_y
         self.alfy = - self.y_matrix[0,1]/self.emitt_y
         self.gamy = self.y_matrix[1,1]/self.emitt_y
-    
+
     def measure_bunch_moments(self, particles, coupling = False):
         self.set_particles(particles)
         if coupling:
