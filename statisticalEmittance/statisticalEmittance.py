@@ -41,9 +41,10 @@ class StatisticalEmittance(object):
         if particles:
             self.set_particles(particles)
         else:
-            self.beam_matrix=None
-            self.beta0=None
-            self.gamma0=None
+            self.beam_matrix = None
+            self.beta0 = None
+            self.gamma0 = None
+            self.energy0 = None
             print("#StatisticalEmittance : Provide distribution in [set_particles]")
         self.dx=None
         self.coordinate_matrix_betatronic = None
@@ -76,9 +77,10 @@ class StatisticalEmittance(object):
             self.coordinate_matrix = self.np.array([particles.x[mask_alive],particles.px[mask_alive],
                                     particles.y[mask_alive],particles.py[mask_alive],
                                     particles.zeta[mask_alive],particles.delta[mask_alive]])            
-        self.beam_matrix=self.np.matmul(self.coordinate_matrix,self.coordinate_matrix.T)/len(particles.x[mask_alive]) 
-        self.beta0=particles.beta0[0]
-        self.gamma0=particles.gamma0[0]
+        self.beam_matrix = self.np.matmul(self.coordinate_matrix,self.coordinate_matrix.T)/len(particles.x[mask_alive]) 
+        self.beta0 = particles.beta0[0]
+        self.gamma0 = particles.gamma0[0]
+        self.energy0 = particles.energy0[0]
 
     def correlation(self,par1,par2, betatronic=True):
         """
@@ -139,6 +141,8 @@ class StatisticalEmittance(object):
             self.emitt_x=self.np.sqrt(abs(self.np.linalg.det(self.x_matrix)))
             self.y_matrix=self.np.array([[self.correlation(2,2, betatronic=True),self.correlation(2,3, betatronic=True)],[self.correlation(3,2, betatronic=True),self.correlation(3,3, betatronic=True)]])
             self.emitt_y=self.np.sqrt(abs(self.np.linalg.det(self.y_matrix)))
+            self.z_matrix=self.np.array([[self.correlation(4,4, betatronic=False),self.correlation(4,5, betatronic=False)],[self.correlation(5,4, betatronic=False),self.corr5]])
+            self.emitt_z=self.np.sqrt(abs(self.np.linalg.det(self.z_matrix)))*self.beta0*self.energy0*4*self.np.pi/299792458.0
         if fourD:
             x_y_matrix=self.np.array([[self.correlation(0,2, betatronic=True),self.correlation(0,3, betatronic=True)],[self.correlation(1,2, betatronic=True),self.correlation(1,3, betatronic=True)]])
             full_matrix=self.np.append(self.np.append(self.x_matrix,x_y_matrix,axis=1),self.np.append(x_y_matrix.T,self.y_matrix,axis=1),axis=0)
@@ -175,7 +179,7 @@ class StatisticalEmittance(object):
         else:
             self.calculate_emittance()
         self.calculate_twiss_functions()
-        self.bunch_moments={'nemitt_x': self.emitt_x*self.beta0*self.gamma0, 'nemitt_y': self.emitt_y*self.beta0*self.gamma0, 
+        self.bunch_moments={'nemitt_x': self.emitt_x*self.beta0*self.gamma0, 'nemitt_y': self.emitt_y*self.beta0*self.gamma0, 'emitt_z': self.emitt_z,
                             'betx': self.betx, 'bety': self.bety, 
                             'alfx': self.alfx , 'alfy': self.alfy,
                             'gamx': self.gamx , 'gamy': self.gamy,
