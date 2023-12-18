@@ -1,9 +1,7 @@
 from cpymad.madx import Madx
 
 import xpart as xp
-import xobjects as xo
 import xtrack as xt
-import xfields as xf
 
 
 seq_name = 'sps'

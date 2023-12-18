@@ -29,21 +29,7 @@ particles = xp.generate_matched_gaussian_bunch(
 r=StatisticalEmittance()
 statisticalOptics=r.measure_bunch_moments(particles, 'coupling')
 assert np.isclose(statisticalOptics['coupling'],0,atol=5e-5)
-
-
-klqsa=1.5e-2
-skews=[i for i in line.element_dict if i[:4]=='lqsa' and len(i)<12]
-for i in skews:
-    line.element_dict[i].ksl[1]=klqsa
-
-particles_coupling = xp.generate_matched_gaussian_bunch(
-         num_particles=n_part, total_intensity_particles=bunch_intensity,
-         nemitt_x=nemitt_x, nemitt_y=nemitt_y, sigma_z=sigma_z,
-         line=line)
-
-statisticalOptics_coupling=r.measure_bunch_moments(particles_coupling, 'coupling')
-assert np.isclose(statisticalOptics_coupling['coupling'],2,atol=5e-1)
-assert np.isclose(statisticalOptics['emitt_4d'],statisticalOptics_coupling['emitt_4d'],atol=1e-15)
+assert np.isclose(statisticalOptics['emitt_4d'],statisticalOptics['nemitt_x']/r.beta0/r.gamma0*statisticalOptics['nemitt_y']/r.beta0/r.gamma0,atol=1e-16)
 
 klqsa=1.5e-2
 skews=[i for i in line.element_dict if i[:4]=='lqsa' and len(i)<12]
@@ -57,7 +43,7 @@ particles_coupling = xp.generate_matched_gaussian_bunch(
 
 statisticalOptics_coupling=r.measure_bunch_moments(particles_coupling, 'coupling')
 assert np.isclose(statisticalOptics_coupling['coupling'],2,atol=5e-1)
-assert np.isclose(statisticalOptics['emitt_4d'],statisticalOptics_coupling['emitt_4d'],atol=1e-15)
+assert np.isclose(statisticalOptics['emitt_4d'],statisticalOptics_coupling['emitt_4d'],atol=1e-16)
 
 klqsa=1e-2
 skews=[i for i in line.element_dict if i[:4]=='lqsa' and len(i)<12]
@@ -71,4 +57,4 @@ particles_coupling = xp.generate_matched_gaussian_bunch(
 
 statisticalOptics_coupling=r.measure_bunch_moments(particles_coupling, 'coupling')
 assert np.isclose(statisticalOptics_coupling['coupling'],0.2,atol=5e-2)
-assert np.isclose(statisticalOptics['emitt_4d'],statisticalOptics_coupling['emitt_4d'],atol=1e-15)
+assert np.isclose(statisticalOptics['emitt_4d'],statisticalOptics_coupling['emitt_4d'],atol=1e-16)
