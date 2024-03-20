@@ -63,9 +63,19 @@ class StatisticalEmittance(object):
             self.dx=None
             self.coordinate_matrix_betatronic = None
             self.emitt_x = None
+            self.emitt_y = None
             self.betx = None
             self.emitt_4d = None
             self.coupling = None
+            self.alfx = None
+            self.gamx = None
+            self.bety = None
+            self.alfy = None
+            self.gamy = None
+            self.rms_x = None
+            self.rms_px = None
+            self.rms_y = None
+            self.rms_py = None
         context = particles._context
         ctx2np = context.nparray_from_context_array
         mask_alive = particles.state>=1
@@ -133,7 +143,7 @@ class StatisticalEmittance(object):
     
     def calculate_emittance(self, fourD=False):
         """
-        Transverse emittance evaluation 
+        Emittance evaluation 
         Returns: void
         """
         if self.emitt_x is None:
@@ -143,6 +153,10 @@ class StatisticalEmittance(object):
             self.emitt_y=self.np.sqrt(abs(self.np.linalg.det(self.y_matrix)))
             self.z_matrix=self.np.array([[self.correlation(4,4, betatronic=False),self.correlation(4,5, betatronic=False)],[self.correlation(5,4, betatronic=False),self.corr5]])
             self.emitt_z=self.np.sqrt(abs(self.np.linalg.det(self.z_matrix)))*self.beta0*self.energy0*4*self.np.pi/299792458.0
+            self.rms_x=self.np.sqrt(abs(self.x_matrix[0,0]))
+            self.rms_px=self.np.sqrt(abs(self.x_matrix[1,1]))
+            self.rms_y=self.np.sqrt(abs(self.y_matrix[0,0]))
+            self.rms_py=self.np.sqrt(abs(self.y_matrix[1,1]))
         if fourD:
             x_y_matrix=self.np.array([[self.correlation(0,2, betatronic=True),self.correlation(0,3, betatronic=True)],[self.correlation(1,2, betatronic=True),self.correlation(1,3, betatronic=True)]])
             full_matrix=self.np.append(self.np.append(self.x_matrix,x_y_matrix,axis=1),self.np.append(x_y_matrix.T,self.y_matrix,axis=1),axis=0)
@@ -184,7 +198,9 @@ class StatisticalEmittance(object):
                             'alfx': self.alfx , 'alfy': self.alfy,
                             'gamx': self.gamx , 'gamy': self.gamy,
                             'dx': self.dx, 'dy': self.dy,
-                            'dpx': self.dpx , 'dpy': self.dpy}
+                            'dpx': self.dpx , 'dpy': self.dpy,
+                            'rms_x':self.rms_x,'rms_y':self.rms_y,
+                            'rms_px':self.rms_px,'rms_py':self.rms_py}
         if coupling:
             self.bunch_moments['coupling']=self.coupling
             self.bunch_moments['emitt_4d']=self.emitt_4d
